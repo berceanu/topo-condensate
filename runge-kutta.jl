@@ -29,39 +29,36 @@ cl(N::Int,l::Int,m₀::Int,n₀::Int) = (m(l,N) - m₀)^2 + (n(l,N) - n₀)^2
 ##     (-J * exp(-π*α*n(l,N)*im), -J * exp(π*α*m(l,N)*im))
 ## end
 
-# Landau gauge
-function Jl(N::Int,l::Int,p::Int,q::Int,J::Float64)
-    α = p/q
-    (-J,-J * exp(2π*α*m(l,N)*im))
-end
 
-
+# TODO: write new tests for equilibrium case
 
 function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::Int,n₀::Int,J::Float64,σ::Float64,Ω::Float64,κ::Float64,f::Array{Float64,1})
     d = N^2
     adot = Array(Complex{Float64}, d) 
 
+    # TODO: calculate m and n corresponding to given l only once
+    
     for l = 1:d
-        (J1, J2) = Jl(N,l,p,q,J)
+
         #p3 and p4 are always present
-        denominator = -σ/Ω*f[l] + im
-        p₃ = (κ*cl(N,l,m₀,n₀) + σ*(f[l] - 1)*im) / denominator
-        p₄ = (1 - σ*im) / denominator
+        denominator = im
+        p₃ = κ*cl(N,l,m₀,n₀) / denominator
+        p₄ = 1 / denominator
         adot[l] = p₃*a[l] + p₄*abs2(a[l])*a[l]
         if l > N
-            p₁ = J1 / denominator
-            p₂ = conj(J2) / denominator
+            p₁ = -J / denominator
+            p₂ = -J / denominator
             adot[l] += p₁*a[l-N] + p₂*a[l-1]
         elseif l > 1
-            p₂ = conj(J2) / denominator
+            p₂ = conj(-J) / denominator
             adot[l] += p₂*a[l-1]
         end 
         if l < d+1-N
-            p₅ = J2 / denominator
-            p₆ = conj(J1) / denominator
+            p₅ = -J / denominator
+            p₆ = -J / denominator
             adot[l] += p₅*a[l+1] + p₆*a[l+N]
         elseif l < d
-            p₅ = J2 / denominator
+            p₅ = -J / denominator
             adot[l] += p₅*a[l+1]
         end
     end
