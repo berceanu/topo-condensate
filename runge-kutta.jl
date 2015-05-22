@@ -4,42 +4,19 @@ using ODE
 m(l::Int,N::Int) = div(l-1,N) - div(N-1,2)
 n(l::Int,N::Int) = div(N-1,2) - rem(l-1,N)
 
-## l(m,n,N) = (m + div(N-1,2))*N + div(N-1,2) - n + 1
-## #test mapping
-## const N=3
-## const edge = div(N-1,2)
-## #direct mapping (m,n) -> l
-## for j=edge:-1:-edge
-##     for i=-edge:edge
-##     print("($i,$j) → $(l(i,j,N)) ")
-##     end
-##     println()
-## end 
-## println()        
-## #inverse mapping l -> (m,n)
-## for i=1:N^2
-##     println("$i → ($(m(i,N)),$(n(i,N)))")
-## end
 
 cl(N::Int,l::Int,m₀::Int,n₀::Int) = (m(l,N) - m₀)^2 + (n(l,N) - n₀)^2
 
-## # symmetric gauge
-## function Jl(N::Int,l::Int,p::Int,q::Int,J::Float64)
-##     α = p/q
-##     (-J * exp(-π*α*n(l,N)*im), -J * exp(π*α*m(l,N)*im))
-## end
 
 
 # TODO: write new tests for equilibrium case
+# TODO: calculate m and n corresponding to given l only once
 
 function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::Int,n₀::Int,J::Float64,σ::Float64,Ω::Float64,κ::Float64,f::Array{Float64,1})
     d = N^2
     adot = Array(Complex{Float64}, d) 
 
-    # TODO: calculate m and n corresponding to given l only once
-    
     for l = 1:d
-
         #p3 and p4 are always present
         denominator = im
         p₃ = κ*cl(N,l,m₀,n₀) / denominator
@@ -119,7 +96,7 @@ q = 1
 
 
 
-tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 10])
+tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 10], points=:specified)
 
 
 #a = sqrt(γ0/Γ0)*aout
