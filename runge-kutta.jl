@@ -4,22 +4,6 @@ using ODE
 m(l::Int,N::Int) = div(l-1,N) - div(N-1,2)
 n(l::Int,N::Int) = div(N-1,2) - rem(l-1,N)
 
-## l(m,n,N) = (m + div(N-1,2))*N + div(N-1,2) - n + 1
-## #test mapping
-## const N=3
-## const edge = div(N-1,2)
-## #direct mapping (m,n) -> l
-## for j=edge:-1:-edge
-##     for i=-edge:edge
-##     print("($i,$j) → $(l(i,j,N)) ")
-##     end
-##     println()
-## end 
-## println()        
-## #inverse mapping l -> (m,n)
-## for i=1:N^2
-##     println("$i → ($(m(i,N)),$(n(i,N)))")
-## end
 
 cl(N::Int,l::Int,m₀::Int,n₀::Int) = (m(l,N) - m₀)^2 + (n(l,N) - n₀)^2
 
