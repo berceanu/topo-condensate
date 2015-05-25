@@ -184,7 +184,7 @@ const C = [0.0,
 
 @test_approx_eq_eps(F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), A, 1e-16)
 
-@test_approx_eq_eps(atst[end], B, 1e-15)
+@test_approx_eq_eps(atst[end], B, 1e-6)
 
 @test_approx_eq_eps(ttst, C, 1e-11)
 
