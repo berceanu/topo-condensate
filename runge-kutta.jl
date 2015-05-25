@@ -65,24 +65,23 @@ end
 
 
 ### --->
-## N = 3
-# N = 65
+N = 65
 
-## f = ones(N^2)
-## Ω = 1.
+f = ones(N^2)
+Ω = 1.
 
 
-## a₀ = ones(Complex{Float64}, N^2)
+a₀ = ones(Complex{Float64}, N^2)
 
-## σ = 0.
-## J = 1.
-## κ = 10.
+σ = 0.
+J = 1.
+κ = 10.
 
-## m₀ = 0
-## n₀ = 0
+m₀ = 0
+n₀ = 0
 
-## p = 0
-## q = 1
+p = 0
+q = 1
 ### <---
 
 ## tout, aout = odeXX((t,a)->F(t,a), a0, tspan; keywords...)
@@ -90,7 +89,7 @@ end
 
 
 
-### tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 10], points=:specified)
+tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 1.], points=:specified)
 
 
 #a = sqrt(γ0/Γ0)*aout
