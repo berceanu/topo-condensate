@@ -33,36 +33,6 @@ function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::
     adot
 end 
 
-## N = 3
-
-## γ0 = 1.
-## f0 = ones(N^2)
-## f = f0./γ0
-
-
-## Γ0 = 1.
-## a0 = ones(Complex{Float64}, N^2)
-## a₀ = sqrt(Γ0/γ0)*a0
-
-## U0 = 1.
-## σ = Γ0/U0
-
-## J0 = 1.
-## J = Γ0*J0/(U0*γ0)
-
-## κ0 = 1.
-## κ = Γ0*κ0/(U0*γ0)
-
-## ℏ = 1.
-## Ω0 = 1./(2ℏ)
-## Ω = 2ℏ*Γ0*Ω0/(U0*γ0)
-
-## m₀ = 0
-## n₀ = 0
-## p = 1
-## q = 11
-
-
 
 ### --->
 N = 65
@@ -84,55 +54,50 @@ p = 0
 q = 1
 ### <---
 
-## tout, aout = odeXX((t,a)->F(t,a), a0, tspan; keywords...)
-## F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f)
+@time tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 10.], points=:specified)
 
-
-
-tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 1.], points=:specified)
-
-
-#a = sqrt(γ0/Γ0)*aout
-#t = 2ℏ*Γ0*tout/(U0*γ0)
 
 ### --->
 #plotting
-## using PyPlot
+using PyPlot
 
-## # matplotlib parameters
-## matplotlib["rcParams"][:update](["axes.labelsize" => 22,
-##                                  "axes.titlesize" => 20,
-##                                  "font.size" => 18,
-##                                  "legend.fontsize" => 14,
-##                                  "axes.linewidth" => 1.5,
-##                                  "font.family" => "serif",
-##                                  "font.serif" => "Computer Modern Roman",
-##                                  "xtick.labelsize" => 20,
-##                                  "xtick.major.size" => 5.5,
-##                                  "xtick.major.width" => 1.5,
-##                                  "ytick.labelsize" => 20,
-##                                  "ytick.major.size" => 5.5,
-##                                  "ytick.major.width" => 1.5,
-##                                  "text.usetex" => true,
-##                                  "figure.autolayout" => true])
+# matplotlib parameters
+matplotlib["rcParams"][:update](["axes.labelsize" => 22,
+                                 "axes.titlesize" => 20,
+                                 "font.size" => 18,
+                                 "legend.fontsize" => 14,
+                                 "axes.linewidth" => 1.5,
+                                 "font.family" => "serif",
+                                 "font.serif" => "Computer Modern Roman",
+                                 "xtick.labelsize" => 20,
+                                 "xtick.major.size" => 5.5,
+                                 "xtick.major.width" => 1.5,
+                                 "ytick.labelsize" => 20,
+                                 "ytick.major.size" => 5.5,
+                                 "ytick.major.width" => 1.5,
+                                 "text.usetex" => true,
+                                 "figure.autolayout" => true])
 
-## edge = div(N-1,2)
+edge = div(N-1,2)
 
 
-## f, ax = plt.subplots(figsize=(5, 5))
-## ax[:imshow](abs2(reshape(aout[end], N,N)),
-##             origin="upper", ColorMap("gist_heat_r"), interpolation="none",
-##             extent=[-edge, edge, -edge, edge])
+fig, ax = plt.subplots(figsize=(5, 5))
 
-## ax[:set_xlabel](L"$m$")
-## ax[:set_ylabel](L"$n$")
-## ax[:set_xticks]([-edge,0, edge])
-## ax[:set_yticks]([-edge,0, edge])
+ax[:imshow](abs2(reshape(aout[end], N,N)),
+            origin="upper", ColorMap("gist_heat_r"), interpolation="none",
+            extent=[-edge, edge, -edge, edge])
+
+
+ax[:set_xlabel](L"$m$")
+ax[:set_ylabel](L"$n$")
+
+fig[:savefig]("caca.pdf", transparent=true, pad_inches=0.0, bbox_inches="tight")
+plt.close(fig)
 ### <---
 
 
 #testing
-ttst, atst = ode45((t,a)->F(t,a, 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), ones(Complex{Float64}, 3^2), [0., 1])
+ttst, atst = ode45((t,a)->F(t,a, 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), ones(Complex{Float64}, 3^2), [0., 1.])
 
 using Base.Test
 
