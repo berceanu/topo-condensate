@@ -183,16 +183,12 @@ const C = [0.0
 
 @test_approx_eq_eps(ttst, C, 1e-6)
 
+# 2.6s; 0.8s
+#@time for i=1:10^6; F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)) ; end
 
-# @time for i=1:10^6; F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)) ; end
-# 2.6s
+# 10.9s; 1.8s
+#@time for i=1:100; F(1.,ones(Complex{Float64}, 512^2), 512,1,11,0,0,1.,1.,1.,1.,ones(512^2)) ; end
 
-## Profile.clear()
-## @profile (for i = 1:10^6; F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)); end)
-
-
-## @time for i=1:100; F(1.,ones(Complex{Float64}, 512^2), 512,1,11,0,0,1.,1.,1.,1.,ones(512^2)) ; end
-# 10.9s
 
 ## Profile.clear()
 ## @profile (for i=1:100; F(1.,ones(Complex{Float64}, 512^2), 512,1,11,0,0,1.,1.,1.,1.,ones(512^2)) ; end)
