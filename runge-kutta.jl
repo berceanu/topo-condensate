@@ -7,7 +7,7 @@ using ODE
 
 cl(m::Int,n::Int,m₀::Int,n₀::Int) = (m - m₀)^2 + (n - n₀)^2
 
-function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::Int,n₀::Int,J::Float64,σ::Float64,Ω::Float64,κ::Float64,f::Array{Float64,1})
+function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,m₀::Int,n₀::Int,J::Float64,κ::Float64)
     d = N^2
     adot = Array(Complex{Float64}, d) 
 
@@ -34,27 +34,20 @@ function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::
 end 
 
 
+
 ### --->
 N = 65
 
-f = ones(N^2)
-Ω = 1.
-
-
 a₀ = ones(Complex{Float64}, N^2)
 
-σ = 0.
 J = 1.
 κ = 10.
 
 m₀ = 0
 n₀ = 0
-
-p = 0
-q = 1
 ### <---
 
-@time tout, aout = ode45((t,a)->F(t,a, N,p,q,m₀,n₀,J,σ,Ω,κ,f), a₀, [0., 10.], points=:specified)
+@time tout, aout = ode45((t,a)->F(t,a, N,m₀,n₀,J,κ), a₀, [0., 1.], points=:specified)
 
 
 ### --->
@@ -97,7 +90,8 @@ plt.close(fig)
 
 
 #testing
-ttst, atst = ode45((t,a)->F(t,a, 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), ones(Complex{Float64}, 3^2), [0., 1.])
+
+ttst, atst = ode45((t,a)->F(t,a, 3,0, 0, 1.,1.), ones(Complex{Float64}, 3^2), [0., 1.])
 
 using Base.Test
 
@@ -141,19 +135,19 @@ const C = [0.0
            1.0]
 
 
-@test_approx_eq_eps(F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), A, 1e-16)
+@test_approx_eq_eps(F(1.,ones(Complex{Float64}, 3^2), 3,0,0,1.,1.), A, 1e-16)
 
 @test_approx_eq_eps(atst[end], B, 1e-5)
 
 @test_approx_eq_eps(ttst, C, 1e-6)
 
 # 2.6s; 0.8s
-#@time for i=1:10^6; F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)) ; end
+@time for i=1:10^6; F(1.,ones(Complex{Float64}, 3^2), 3,0,0,1.,1.) ; end
 
 # 10.9s; 1.8s
-#@time for i=1:100; F(1.,ones(Complex{Float64}, 512^2), 512,1,11,0,0,1.,1.,1.,1.,ones(512^2)) ; end
+@time for i=1:100; F(1.,ones(Complex{Float64}, 512^2), 512,0,0,1.,1.) ; end
 
 
 ## Profile.clear()
-## @profile (for i=1:100; F(1.,ones(Complex{Float64}, 512^2), 512,1,11,0,0,1.,1.,1.,1.,ones(512^2)) ; end)
+## @profile (for i=1:100;  F(1.,ones(Complex{Float64}, 512^2), 512,0,0,1.,1.) ; end)
 ## Profile.print()
