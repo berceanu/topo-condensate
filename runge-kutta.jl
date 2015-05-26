@@ -32,9 +32,9 @@ function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,m₀::Int,n₀::Int,
     adot
 end 
 
+const N = 20
 
-
-@time tout, aout = ode45((t,a)->F(t,a, 20, 0,0, 25.),
+@time tout, aout = ode45((t,a)->F(t,a, N, 0,0, 25.),
 ones(Complex{Float64}, N^2), [0., 1.], points=:specified)
 
 
