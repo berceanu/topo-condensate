@@ -32,15 +32,6 @@ function F(t::Float64,a::Array{Float64, 1}, N::Int,m₀::Int,n₀::Int,σ::Float
     adot
 end 
 
-const N = 20
-
-
-
-@time tout, aout = ode45((t,a)->F(t,a, N, 0,0, 25.),
-ones(Float64, N^2)/N^2, linspace(0,15,16), points=:specified)
-
-
-
 function kinetic(N::Int, a::Array{Float64, 1}, σ::Float64)
     d = N^2
     s = 0.
@@ -58,11 +49,6 @@ function kinetic(N::Int, a::Array{Float64, 1}, σ::Float64)
     return σ*s/sum(abs2(a))
 end 
 
-# TODO: constant norm
-# TODO: plot energies vs time (kin, pot, tot)
-# TODO: try different lattice sizes
-
-
 function potential(N::Int, a::Array{Float64, 1}, σ::Float64, m₀::Int, n₀::Int)
     s = 0.
     d = N^2 
@@ -75,9 +61,34 @@ function potential(N::Int, a::Array{Float64, 1}, σ::Float64, m₀::Int, n₀::I
     return 1/σ*s/sum(abs2(a))
 end 
 
-kinetic(N, aout[end], 25.)
 
-potential(N, aout[end], 25., 0, 0)
+
+const N = 20
+const m₀ = 0
+const n₀ = 0
+
+h = 0.1
+t₀ = 0.
+q = 100
+
+kin = Array(Float64, q+1)
+pot = Array(Float64, q+1)
+tout = Array(Float64, q+1)
+
+aout = Array[ones(Float64, N^2), ones(Float64, N^2)]
+for k in 0:q
+    tk = t₀ + k*h
+    t, aout = ode45((t,a)->F(t,a, N, m₀,n₀, 25.), aout[end]/norm(aout[end]), [tk, tk+h], points=:specified)
+    kin[k+1] = kinetic(N, aout[end]/norm(aout[end]), 25.)
+    pot[k+1] = potential(N, aout[end]/norm(aout[end]), 25., m₀, n₀)
+    tout[k+1] = tk+h
+end
+
+aout = aout[end]/norm(aout[end])
+
+
+
+# TODO: try different lattice sizes
 
 
 
@@ -106,14 +117,33 @@ edge = div(N-1,2)
 
 fig, ax = plt.subplots(figsize=(5, 5))
 
-ax[:imshow](abs2(reshape(aout[end], N,N)),
+ax[:imshow](abs2(reshape(aout, N,N)),
             origin="upper", ColorMap("gist_heat_r"), interpolation="none",
             extent=[-edge, edge, -edge, edge])
 
 ax[:set_xlabel](L"$m$")
 ax[:set_ylabel](L"$n$")
 
-fig[:savefig]("caca.pdf", transparent=true, pad_inches=0.0, bbox_inches="tight")
+fig[:savefig]("psisq.pdf", transparent=true, pad_inches=0.0, bbox_inches="tight")
+plt.close(fig)
+
+fig, ax = plt.subplots(figsize=(10, 4))
+ax[:plot](tout, kin, label="kinetic energy")
+ax[:plot](tout, pot, label="potential energy")
+
+
+ax[:legend](loc="lower right")
+
+
+
+ax[:set_xlim](tout[1], tout[end])
+#ax[:set_ylim](0, 70)
+
+ax[:set_xlabel](L"$t\,[\frac{2}{\omega_0}]$")
+ax[:set_ylabel](L"$E\,[\frac{\hbar\omega_0}{2}]$ ")
+
+fig[:savefig]("energies.pdf", transparent=true, pad_inches=0.0, bbox_inches="tight")
+
 plt.close(fig)
 ### <---
 
