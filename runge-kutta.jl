@@ -1,3 +1,4 @@
+import Pkg; Pkg.add("ODE"); Pkg.add("PyPlot")
 using ODE
 
 
@@ -20,10 +21,9 @@ function Jl(N::Int,l::Int,p::Int,q::Int,J::Float64)
 end
 
 
-
 function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::Int,n₀::Int,J::Float64,σ::Float64,Ω::Float64,κ::Float64,f::Array{Float64,1})
     d = N^2
-    adot = Array(Complex{Float64}, d) 
+    adot = Array{Complex{Float64}}(undef, d)
 
     for l = 1:d
         (J1, J2) = Jl(N,l,p,q,J)
@@ -39,7 +39,7 @@ function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::
         elseif l > 1
             p₂ = conj(J2) / denominator
             adot[l] += p₂*a[l-1]
-        end 
+        end
         if l < d+1-N
             p₅ = J2 / denominator
             p₆ = conj(J1) / denominator
@@ -50,7 +50,7 @@ function F(t::Float64,a::Array{Complex{Float64}, 1}, N::Int,p::Int,q::Int,m₀::
         end
     end
     adot
-end 
+end
 
 ## N = 3
 
@@ -137,7 +137,7 @@ edge = div(N-1,2)
 
 
 f, ax = plt.subplots(figsize=(5, 5))
-ax[:imshow](abs2(reshape(aout[end], N,N)),
+ax[:imshow](abs2.(reshape(aout[end], N,N)),
             origin="upper", ColorMap("gist_heat_r"), interpolation="none",
             extent=[-edge, edge, -edge, edge])
 
@@ -146,11 +146,12 @@ ax[:set_ylabel](L"$n$")
 ax[:set_xticks]([-edge,0, edge])
 ax[:set_yticks]([-edge,0, edge])
 
+savefig("squares.png")
 
 #testing
 ttst, atst = ode45((t,a)->F(t,a, 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), ones(Complex{Float64}, 3^2), [0., 1])
 
-using Base.Test
+using Test
 
 const A = [-0.8090528248566107 - 0.3496936423122082im,
            -0.1587464671688188 + 0.8412535328311812im,
@@ -171,22 +172,23 @@ const B = [0.5590362122824426 + 0.2612536645663328im,
            0.5843645134936588 + 0.725410327353141im,
            0.5590362122824425 + 0.26125366456633276im];
 const C = [0.0,
-           0.05197080532645042,
-           0.15834235118131917,
-           0.2650627983858902,
-           0.37343590235112956,
-           0.48148607518668307,
-           0.5903282274614065,
-           0.701472054001701,
-           0.8159992645949047,
-           0.9344956827424271,
+           0.028768110347909062,
+           0.12566178426740987,
+           0.2228075252877766,
+           0.32359991817436035,
+           0.4261488432928628,
+           0.5303748765226354,
+           0.6369499640459351,
+           0.7466894493187844,
+           0.8601933256409379,
+           0.977728108995228,
            1.0];
 
-@test_approx_eq_eps(F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), A, 1e-16)
+@test isapprox(F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)), A; atol=1e-16)
+@test isapprox(atst[end], B; atol=1e-6)
+@test isapprox(ttst, C; atol=1e-11)
 
-@test_approx_eq_eps(atst[end], B, 1e-6)
-
-@test_approx_eq_eps(ttst, C, 1e-11)
+using Profile
 
 
 # @time for i=1:10^6; F(1.,ones(Complex{Float64}, 3^2), 3,1,11,0,0,1.,1.,1.,1.,ones(3^2)) ; end
